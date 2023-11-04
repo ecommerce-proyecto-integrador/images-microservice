@@ -3,12 +3,17 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 
-	"github.com/ecommerce-proyecto-integrador/images-microservice/mod/config"
-	"github.com/ecommerce-proyecto-integrador/images-microservice/mod/internal"
+	"github.com/ecommerce-proyecto-integrador/images-microservice/config"
+	"github.com/ecommerce-proyecto-integrador/images-microservice/controllers"
+	"github.com/ecommerce-proyecto-integrador/images-microservice/internal"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
+
+const imageStoragePath = "images"
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -26,12 +31,12 @@ func getChannel() *amqp.Channel {
 
 func declareQueue(ch *amqp.Channel) amqp.Queue {
 	q, err := ch.QueueDeclare(
-		"users_queue", // name
-		false,         // durable
-		false,         // delete when unused
-		false,         // exclusive
-		false,         // no-wait
-		nil,           // arguments
+		"images_queue", // name
+		false,          // durable
+		false,          // delete when unused
+		false,          // exclusive
+		false,          // no-wait
+		nil,            // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 	return q
@@ -64,14 +69,11 @@ func registerConsumer(ch *amqp.Channel, q amqp.Queue) <-chan amqp.Delivery {
 }
 
 func main() {
-	fmt.Println("Image MS starting...")
+	fmt.Println("Images MS starting...")
 
+	// Configura la conexión con RabbitMQ
 	godotenv.Load()
 	fmt.Println("Loaded env variables...")
-
-	config.SetupDatabase()
-	fmt.Println("Database connection configured...")
-
 	config.SetupRabbitMQ()
 	fmt.Println("RabbitMQ Connection configured...")
 
@@ -80,13 +82,21 @@ func main() {
 	setQoS(ch)                      // Establece la calidad de servicio en el canal
 	msgs := registerConsumer(ch, q) // Registra un consumidor para la cola y obtiene un canal de entrega de mensajes
 
-	var forever chan struct{}
+	// Configura el enrutador HTTP
+	r := mux.NewRouter()
+
+	// Define tus rutas
+	//r.HandleFunc("/images", controllers.UploadImage()).Methods("POST")
+	r.HandleFunc("/images/{id}", controllers.GetImage).Methods("GET")
+	//r.HandleFunc("/products/{id}", imageController.GetProductWithImage).Methods("GET")
+
 	go func() {
 		for d := range msgs {
 			internal.Handler(d, ch) // Llama al manejador de mensajes internos con el mensaje y el canal de RabbitMQ
 		}
 	}()
 
-	log.Printf(" [*] Awaiting RPC requests")
-	<-forever // Espera indefinidamente
+	// Inicia el servidor HTTP
+	http.Handle("/", r)
+	log.Fatal(http.ListenAndServe(":8181", nil))
 }

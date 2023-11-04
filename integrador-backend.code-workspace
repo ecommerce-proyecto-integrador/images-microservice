@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../products-microservice"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../Gateway"
+		},
+		{
+			"path": "../users-microservice"
+		}
+	],
+	"settings": {}
+}
