@@ -15,3 +15,4 @@ EXPOSE 8181
 
 # Run the Go application
 CMD ["./main"]
+
