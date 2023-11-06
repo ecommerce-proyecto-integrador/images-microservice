@@ -1,0 +1,33 @@
+name: Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.1
+
+      - name: Build and test
+        run: |
+          go build -o main
+          go test ./...
+
+      - name: Deploy to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          docker build -t images-microservice:latest .
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u diegogmrn --password-stdin
+          docker tag images-microservice:latest diegogmrn/images-microservice:latest
+          docker push diegogmrn/images-microservice:latest
