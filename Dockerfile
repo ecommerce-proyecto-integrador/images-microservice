@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy the Go project files into the container
 COPY . .
 
+# Copy the images from the host into the container
+COPY images /app/images
+
 # Build the Go application
 RUN go build -o main .
 

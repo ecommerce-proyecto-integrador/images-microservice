@@ -74,6 +74,10 @@ func main() {
 	// Configura la conexión con RabbitMQ
 	godotenv.Load()
 	fmt.Println("Loaded env variables...")
+
+	config.SetupDatabase()
+	fmt.Println("Database connection configured...")
+
 	config.SetupRabbitMQ()
 	fmt.Println("RabbitMQ Connection configured...")
 
