@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func UploadImage(image models.Image, fileName string, imageData []byte) (models.Image, error) {
+func UploadImage(image models.FtpImage, fileName string, imageData []byte) (models.FtpImage, error) {
 	err := db.DB.Create(&image).Error
 
 	if err != nil {
@@ -44,7 +44,7 @@ func GetImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteImage(imageName string) error {
-	var image models.Image
+	var image models.FtpImage
 	err := db.DB.Select("id, name").Where("name = ?", imageName).First(&image).Error
 
 	if err != nil {

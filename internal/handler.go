@@ -58,7 +58,7 @@ func Handler(d amqp.Delivery, ch *amqp.Channel) {
 		err := json.Unmarshal(d.Body, &data)
 		failOnError(err, "Failed to unmarshal image")
 		fileName := generateUniqueImageName()
-		image := models.Image{
+		image := models.FtpImage{
 			Name: fileName,
 		}
 		imageJson, err := json.Marshal(data)
