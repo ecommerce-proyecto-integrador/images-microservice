@@ -75,7 +75,7 @@ func main() {
 	godotenv.Load()
 	fmt.Println("Loaded env variables...")
 
-	config.SetupDatabase()
+	//config.SetupDatabase()
 	fmt.Println("Database connection configured...")
 
 	config.SetupRabbitMQ()
